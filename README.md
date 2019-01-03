@@ -26,12 +26,34 @@ import (
        )
 
 
+var q *stats.Stats
+
 func main() {
 
-        q, _ := stats.NewQ()
+        q, _ = stats.NewQ()
+
+        isReady := make(chan bool, 1)
+        go multiRun(isReady)
+
+        isMore := make(chan bool, 1)
+        go multiMore(isMore)
+
+        <-isReady
+        <-isMore
+
+        //Note: 
+        //      try to wait a bit the channel
+        //      but in real app, this shouldnt be needed
+        //
+        time.Sleep(1 * time.Millisecond) 
+        fmt.Println(q.Stringify())
+}
+
+func multiRun(ready chan bool) {
+
         i := 0
         for {
-                time.Sleep(1 * time.Millisecond)
+                i++
 
                 //increment by 1
                 q.Incr("STATS")
@@ -39,18 +61,34 @@ func main() {
                 //increment by 1.0
                 q.FloatIncr("DECIMAL::STATS")
 
-                i++
                 //done
                 if i >= 100 {
                         break
                 }
         }
-        //show again :-)
-        time.Sleep(1 * time.Millisecond) //try to wait a bit the channel :-)
-        fmt.Println(q.Stringify())
-
-
+        ready <- true
 }
+
+func multiMore(ready chan bool) {
+
+        i := 0
+        for {
+                i++
+
+                //increment by 1
+                q.Incr("MORE::STATS")
+
+                //increment by 1.0
+                q.FloatIncr("MORE::DECIMAL::STATS")
+
+                //done
+                if i >= 500 {
+                        break
+                }
+        }
+        ready <- true
+}
+
 ```
 
 
