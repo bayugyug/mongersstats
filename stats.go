@@ -182,6 +182,7 @@ func (q *Stats) Watch(isReady chan bool) {
 			if m.ByFloat != 0 {
 				q.QFloat[m.Value] += m.ByFloat
 			}
+		case <-time.After(1 * time.Nanosecond):
 		}
 	}
 }
