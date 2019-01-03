@@ -39,19 +39,14 @@ func main() {
                 //increment by 1.0
                 q.FloatIncr("DECIMAL::STATS")
 
-                //reload & print
                 i++
-                if i == 50 {
-                        fmt.Println(q.JSONify())
-                        q.Reload()
-                }
-
                 //done
                 if i >= 100 {
                         break
                 }
         }
         //show again :-)
+        time.Sleep(1 * time.Millisecond) //try to wait a bit the channel :-)
         fmt.Println(q.Stringify())
 
 
