@@ -207,7 +207,7 @@ func (q *Stats) Dump() {
 	}
 	sort.Strings(strs)
 	for _, sv := range strs {
-		fmt.Sprintf("%-20s => %d\n", sv, q1[sv])
+		fmt.Println(fmt.Sprintf("%-20s => %d", sv, q1[sv]))
 	}
 
 	strs = []string{}
@@ -215,7 +215,7 @@ func (q *Stats) Dump() {
 		strs = append(strs, k)
 	}
 	for _, sv := range strs {
-		fmt.Sprintf("%-20s => %.08f\n", sv, q2[sv])
+		fmt.Println(fmt.Sprintf("%-20s => %.08f", sv, q2[sv]))
 	}
 	return
 }
