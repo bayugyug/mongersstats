@@ -25,35 +25,9 @@ type Stats struct {
 	lock     sync.Mutex         `json:"-"`
 }
 
-// Option is used to pass optional arguments to
-// the Stats constructor
-type Option interface {
-	Configure(*Stats) error
-}
-
-// OptionCallback is a type of Option that is represented
-// by a single function that gets called for Configure()
-type OptionCallback func(*Stats) error
-
-// Configure
-func (opts OptionCallback) Configure(q *Stats) error {
-	return opts(q)
-}
-
-// WithQLimit for chan qsize
-func WithQLimit(m int) Option {
-	return OptionCallback(func(q *Stats) error {
-		//just in case
-		if m > 0 {
-			q.qRows = make(chan qRow, m)
-		}
-		return nil
-	})
-}
-
 // NewQ creates a new Stats
 // must be passed. Optional `Option` parameters may be passed
-func NewQ(opts ...Option) (*Stats, error) {
+func NewQ(opts ...*Option) (*Stats, error) {
 
 	//init defaults here
 	q := &Stats{
@@ -64,8 +38,13 @@ func NewQ(opts ...Option) (*Stats, error) {
 	}
 
 	//add options if any
-	for _, opt := range opts {
-		opt.Configure(q)
+	for _, o := range opts {
+		switch o.Name() {
+		case optionKQLimit:
+			if limit := o.Value().(int); limit > 0 {
+				q.qRows = make(chan qRow, limit)
+			}
+		}
 	}
 
 	//monitor
@@ -239,3 +218,36 @@ func (q *Stats) Raw() (map[string]int, map[string]float64) {
 	//fmt here
 	return q.qInts, q.qFloats
 }
+
+//Option set of option config
+type Option struct {
+	name  string
+	value interface{}
+}
+
+//NewOption new Option
+func NewOption(name string, value interface{}) *Option {
+	return &Option{
+		name:  name,
+		value: value,
+	}
+}
+
+//Name of the Option
+func (o *Option) Name() string {
+	return o.name
+}
+
+//Value of the Option
+func (o *Option) Value() interface{} {
+	return o.value
+}
+
+//WithQLimit option for q limit size
+func WithQLimit(i int) *Option {
+	return NewOption(optionKQLimit, i)
+}
+
+const (
+	optionKQLimit = "Opt-QLimit"
+)
