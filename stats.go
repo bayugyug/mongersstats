@@ -11,7 +11,7 @@ import (
 
 const QLimit = 20000
 
-type QVal struct {
+type qRow struct {
 	value   string  `json:",omitempty"`
 	byInt   int     `json:",omitempty"`
 	byFloat float64 `json:",omitempty"`
@@ -21,7 +21,7 @@ type Stats struct {
 	qInts    map[string]int     `json:",omitempty"`
 	qFloats  map[string]float64 `json:",omitempty"`
 	modified string             `json:",omitempty"`
-	qRows    chan QVal          `json:"-"`
+	qRows    chan qRow          `json:"-"`
 	lock     sync.Mutex         `json:"-"`
 }
 
@@ -45,7 +45,7 @@ func WithQLimit(m int) Option {
 	return OptionCallback(func(q *Stats) error {
 		//just in case
 		if m > 0 {
-			q.qRows = make(chan QVal, m)
+			q.qRows = make(chan qRow, m)
 		}
 		return nil
 	})
@@ -58,7 +58,7 @@ func NewQ(opts ...Option) (*Stats, error) {
 	//init defaults here
 	q := &Stats{
 		modified: time.Now().Format("2006-01-02 15:04:05.999"),
-		qRows:    make(chan QVal, QLimit),
+		qRows:    make(chan qRow, QLimit),
 		qInts:    make(map[string]int),
 		qFloats:  make(map[string]float64),
 	}
@@ -128,49 +128,49 @@ func (q *Stats) JSONify() string {
 //Incr stats by int:1
 func (q *Stats) Incr(v string) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byInt: 1}
+	q.qRows <- qRow{value: v, byInt: 1}
 }
 
 //IncrBy stats by int:1
 func (q *Stats) IncrBy(v string, t int) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byInt: t}
+	q.qRows <- qRow{value: v, byInt: t}
 }
 
 //Decr stats by int: -1
 func (q *Stats) Decr(v string) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byInt: -1}
+	q.qRows <- qRow{value: v, byInt: -1}
 }
 
 //Decr stats by int:1
 func (q *Stats) DecrBy(v string, t int) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byInt: -t}
+	q.qRows <- qRow{value: v, byInt: -t}
 }
 
 //FloatIncr stats by decimal:1.0
 func (q *Stats) FloatIncr(v string) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byFloat: 1.0}
+	q.qRows <- qRow{value: v, byFloat: 1.0}
 }
 
 //FloatIncrBy stats by decimal:n.nn
 func (q *Stats) FloatIncrBy(v string, t float64) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byFloat: t * 1.0}
+	q.qRows <- qRow{value: v, byFloat: t * 1.0}
 }
 
 //FloatDecr stats by decimal: -1.0
 func (q *Stats) FloatDecr(v string) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byFloat: -1.0}
+	q.qRows <- qRow{value: v, byFloat: -1.0}
 }
 
 //FloatDecr stats by decimal: -n.nn
 func (q *Stats) FloatDecrBy(v string, t float64) {
 	//dont worry about racing :-)
-	q.qRows <- QVal{value: v, byFloat: -t * 1.0}
+	q.qRows <- qRow{value: v, byFloat: -t * 1.0}
 }
 
 //Watch monitor the queue data
