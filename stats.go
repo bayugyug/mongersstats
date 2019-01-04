@@ -229,3 +229,13 @@ func (q *Stats) SortIt() string {
 	//give the formatted 1
 	return strings.Join(fmtd, "\n")
 }
+
+//Raw share the actual raw data
+func (q *Stats) Raw() (map[string]int, map[string]float64) {
+	//init again
+	q.Lock.Lock()
+	defer q.Lock.Unlock()
+
+	//fmt here
+	return q.QInt, q.QFloat
+}
