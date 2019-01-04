@@ -1,6 +1,6 @@
 ## mongersstats
 
-* [x] Simple golang utility library on safe queueing of stats
+* [x] Simple golang utility library on safe queueing of stats in a concurrent kind of application (concurrency/multi-threaded)
 
 
 ### Install

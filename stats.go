@@ -3,6 +3,7 @@ package mongersstats
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -74,7 +75,7 @@ func NewQ(opts ...Option) (*Stats, error) {
 	return q, nil
 }
 
-//Reload
+//Reload set to initial state
 func (q *Stats) Reload() {
 	//init again
 	q.Lock.Lock()
@@ -185,4 +186,36 @@ func (q *Stats) Watch(isReady chan bool) {
 		case <-time.After(1 * time.Nanosecond):
 		}
 	}
+}
+
+//Dump print all available stats
+func (q *Stats) Dump() {
+	//init again
+	q.Lock.Lock()
+	defer q.Lock.Unlock()
+
+	var strs []string
+
+	//fmt here
+	q1 := q.QInt
+	q2 := q.QFloat
+
+	fmt.Println("Modified:", q.Modified)
+
+	for k, _ := range q1 {
+		strs = append(strs, k)
+	}
+	sort.Strings(strs)
+	for _, sv := range strs {
+		fmt.Sprintf("%-20s => %d\n", sv, q1[sv])
+	}
+
+	strs = []string{}
+	for k, _ := range q2 {
+		strs = append(strs, k)
+	}
+	for _, sv := range strs {
+		fmt.Sprintf("%-20s => %.08f\n", sv, q2[sv])
+	}
+	return
 }
