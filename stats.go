@@ -192,9 +192,7 @@ func (q *Stats) Watch(isReady chan bool) {
 
 //Dump print all available stats
 func (q *Stats) Dump() {
-	fmt.Println(fmt.Sprintf("%-20s => %s", "Modified", q.Modified))
-	fmt.Println(q.SortIt())
-	return
+	fmt.Println(fmt.Sprintf("%-20s => %s\n%s", "Modified", q.Modified), q.SortIt())
 }
 
 //SortIt sort the key=value pair
