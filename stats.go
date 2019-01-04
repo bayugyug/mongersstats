@@ -201,7 +201,7 @@ func (q *Stats) SortIt() string {
 	q.Lock.Lock()
 	defer q.Lock.Unlock()
 
-	var fmtd, strs []string
+	var strs, fmtd []string
 
 	//fmt here
 	q1 := q.QInt
@@ -213,7 +213,7 @@ func (q *Stats) SortIt() string {
 	}
 	sort.Strings(strs)
 	for _, sv := range strs {
-		fmtd += fmt.Sprintf("%-20s => %d", sv, q1[sv])
+		fmtd = append(fmtd, fmt.Sprintf("%-20s => %d", sv, q1[sv]))
 	}
 
 	//dump stats::float
@@ -223,7 +223,7 @@ func (q *Stats) SortIt() string {
 	}
 	sort.Strings(strs)
 	for _, sv := range strs {
-		fmtd += fmt.Sprintf("%-20s => %.08f", sv, q2[sv])
+		fmtd = append(fmtd, fmt.Sprintf("%-20s => %.08f", sv, q2[sv]))
 	}
 
 	//give the formatted 1
