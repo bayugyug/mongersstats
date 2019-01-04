@@ -9,7 +9,10 @@ import (
 	"time"
 )
 
-const QLimit = 20000
+const (
+	QLimit        = 20000
+	optionKQLimit = "Opt-QLimit"
+)
 
 type qRow struct {
 	value   string  `json:",omitempty"`
@@ -219,7 +222,7 @@ func (q *Stats) Raw() (map[string]int, map[string]float64) {
 	return q.qInts, q.qFloats
 }
 
-//Option set of option config
+//Option optional parameter structure
 type Option struct {
 	name  string
 	value interface{}
@@ -247,7 +250,3 @@ func (o *Option) Value() interface{} {
 func WithQLimit(i int) *Option {
 	return NewOption(optionKQLimit, i)
 }
-
-const (
-	optionKQLimit = "Opt-QLimit"
-)
