@@ -94,6 +94,17 @@ func multiMore(ready chan bool) {
 
 ```
 
+### -- [Output] q.Dump()
+
+```
+
+Modified             => 2019-01-04 10:49:51.516
+MORE::STATS          => 500
+STATS                => 100
+DECIMAL::STATS       => 100.00000000
+MORE::DECIMAL::STATS => 500.00000000
+
+```
 
 
 
