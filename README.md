@@ -47,6 +47,9 @@ func main() {
         //
         time.Sleep(1 * time.Millisecond) 
         fmt.Println(q.Stringify())
+
+        //Or dump all in a sorted-way
+        q.Dump()
 }
 
 func multiRun(ready chan bool) {

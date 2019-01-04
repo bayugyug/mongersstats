@@ -194,14 +194,14 @@ func (q *Stats) Dump() {
 	q.Lock.Lock()
 	defer q.Lock.Unlock()
 
-	var strs []string
-
 	//fmt here
 	q1 := q.QInt
 	q2 := q.QFloat
 
-	fmt.Println("Modified:", q.Modified)
+	fmt.Println(fmt.Sprintf("%-20s => %s", "Modified", q.Modified))
 
+	//dump stats::ints
+	var strs []string
 	for k, _ := range q1 {
 		strs = append(strs, k)
 	}
@@ -210,10 +210,12 @@ func (q *Stats) Dump() {
 		fmt.Println(fmt.Sprintf("%-20s => %d", sv, q1[sv]))
 	}
 
+	//dump stats::float
 	strs = []string{}
 	for k, _ := range q2 {
 		strs = append(strs, k)
 	}
+	sort.Strings(strs)
 	for _, sv := range strs {
 		fmt.Println(fmt.Sprintf("%-20s => %.08f", sv, q2[sv]))
 	}
