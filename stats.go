@@ -147,25 +147,25 @@ func (q *Stats) DecrBy(v string, t int) {
 	q.Queue <- QVal{Value: v, ByInt: -t}
 }
 
-//FloatIncr stats by int:1
+//FloatIncr stats by decimal:1.0
 func (q *Stats) FloatIncr(v string) {
 	//dont worry about racing :-)
 	q.Queue <- QVal{Value: v, ByFloat: 1.0}
 }
 
-//FloatIncrBy stats by int:1
+//FloatIncrBy stats by decimal:n.nn
 func (q *Stats) FloatIncrBy(v string, t float64) {
 	//dont worry about racing :-)
 	q.Queue <- QVal{Value: v, ByFloat: t * 1.0}
 }
 
-//FloatDecr stats by int: -1
+//FloatDecr stats by decimal: -1.0
 func (q *Stats) FloatDecr(v string) {
 	//dont worry about racing :-)
 	q.Queue <- QVal{Value: v, ByFloat: -1.0}
 }
 
-//FloatDecr stats by int: -1
+//FloatDecr stats by decimal: -n.nn
 func (q *Stats) FloatDecrBy(v string, t float64) {
 	//dont worry about racing :-)
 	q.Queue <- QVal{Value: v, ByFloat: -t * 1.0}
@@ -190,24 +190,30 @@ func (q *Stats) Watch(isReady chan bool) {
 
 //Dump print all available stats
 func (q *Stats) Dump() {
+	fmt.Println(fmt.Sprintf("%-20s => %s", "Modified", q.Modified))
+	fmt.Println(q.SortIt())
+	return
+}
+
+//SortIt sort the key=value pair
+func (q *Stats) SortIt() string {
 	//init again
 	q.Lock.Lock()
 	defer q.Lock.Unlock()
+
+	var fmtd, strs []string
 
 	//fmt here
 	q1 := q.QInt
 	q2 := q.QFloat
 
-	fmt.Println(fmt.Sprintf("%-20s => %s", "Modified", q.Modified))
-
 	//dump stats::ints
-	var strs []string
 	for k, _ := range q1 {
 		strs = append(strs, k)
 	}
 	sort.Strings(strs)
 	for _, sv := range strs {
-		fmt.Println(fmt.Sprintf("%-20s => %d", sv, q1[sv]))
+		fmtd += fmt.Sprintf("%-20s => %d", sv, q1[sv])
 	}
 
 	//dump stats::float
@@ -217,7 +223,9 @@ func (q *Stats) Dump() {
 	}
 	sort.Strings(strs)
 	for _, sv := range strs {
-		fmt.Println(fmt.Sprintf("%-20s => %.08f", sv, q2[sv]))
+		fmtd += fmt.Sprintf("%-20s => %.08f", sv, q2[sv])
 	}
-	return
+
+	//give the formatted 1
+	return strings.Join(fmtd, "\n")
 }
