@@ -23,7 +23,6 @@ type Stats struct {
 	Modified string             `json:",omitempty"`
 	Queue    chan QVal          `json:"-"`
 	Lock     sync.Mutex         `json:"-"`
-	Limit    int                `json:"-"`
 }
 
 // Option is used to pass optional arguments to
@@ -44,7 +43,10 @@ func (opts OptionCallback) Configure(q *Stats) error {
 // WithQLimit for chan qsize
 func WithQLimit(m int) Option {
 	return OptionCallback(func(q *Stats) error {
-		q.Limit = m
+		//just in case
+		if m > 0 {
+			q.Queue = make(chan QVal, m)
+		}
 		return nil
 	})
 }
