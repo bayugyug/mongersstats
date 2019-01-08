@@ -26,6 +26,7 @@ type Stats struct {
 	modified string             `json:",omitempty"`
 	qRows    chan qRow          `json:"-"`
 	lock     sync.Mutex         `json:"-"`
+	running  bool               `json:",omitempty"`
 }
 
 // NewQ creates a new Stats
@@ -38,6 +39,7 @@ func NewQ(opts ...*Option) (*Stats, error) {
 		qRows:    make(chan qRow, QLimit),
 		qInts:    make(map[string]int),
 		qFloats:  make(map[string]float64),
+		running:  true,
 	}
 
 	//add options if any
@@ -158,6 +160,7 @@ func (q *Stats) FloatDecrBy(v string, t float64) {
 //Watch monitor the queue data
 func (q *Stats) Watch(isReady chan bool) {
 	isReady <- true
+WATCH_LOOP:
 	for {
 		select {
 		case m := <-q.qRows:
@@ -167,9 +170,23 @@ func (q *Stats) Watch(isReady chan bool) {
 			if m.byFloat != 0 {
 				q.qFloats[m.value] += m.byFloat
 			}
+			if !q.running {
+				break WATCH_LOOP
+			}
 		case <-time.After(1 * time.Nanosecond):
+			if !q.running {
+				break WATCH_LOOP
+			}
 		}
 	}
+}
+
+//SetFlag manual escape
+func (q *Stats) SetFlag(ok bool) {
+	//init again
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	q.running = ok
 }
 
 //Dump print all available stats
